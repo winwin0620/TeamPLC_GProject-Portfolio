@@ -48,8 +48,6 @@ if (bEscaped)
 }
 ```
 
-이 관전 대상은 화면뿐 아니라 [Proximity Voice Chat](../Networking/ProximityVoiceChat.md)의 생존자 음성 청취 기준에도 사용됩니다.
-
 ## Round End, Persistence, and Settlement
 
 `DungeonRoom::Tick()`은 `AreAllPlayersInactive()`가 true가 되면 `RoundEnding`으로 이동하고 `FinalizeRoundResultLocked()`을 한 번 호출합니다.
