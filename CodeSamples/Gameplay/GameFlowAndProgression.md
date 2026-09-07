@@ -18,6 +18,19 @@ Main Menu → Create / Join Room → Lobby → Stage Selection
 
 `AGP_PlayerController::RequestCreateRoom()`과 `RequestJoinRoom()`이 진입 요청을 보내고, `SendLobbyReady()`와 `RequestSelectStage()`가 Lobby 선택을 전달합니다. `UClientNetSubsystem::PopRoomState()`로 받은 `S_RoomState`는 `UGP_GameInstance::ApplyRoomStateFromNet()`에 적용되어 UI와 presentation이 같은 서버 상태를 보게 합니다.
 
+### Client-Server Integration
+
+Stage 선택은 다음 한 경로로 연결됩니다.
+
+```text
+AGP_PlayerController::RequestSelectStage() → UClientNetSubsystem::SendSelectStage()
+→ C_SelectStage → ServerSession::HandlePacket() → DungeonRoom::OnSelectStage()
+→ S_RoomState → UClientNetSubsystem::PopRoomState()
+→ UGP_GameInstance::ApplyRoomStateFromNet()
+```
+
+`C_SelectStage`와 `S_RoomState`는 `SharedPacket.h`의 공용 계약입니다. Client는 선택 의도만 보내고, Server는 Lobby phase와 progression 조건을 검증해 Room state를 확정합니다.
+
 공유 상태의 중심은 `ERoomPhase`입니다.
 
 | Phase | Server responsibility | Client response |
@@ -77,4 +90,4 @@ Runtime reset 전에 탈출/사망 결과를 영구 프로필에 반영하고 �
 
 Room 생성/참가, Stage 권한, runtime life state, 관전, 정산, 영속화와 장기 progression을 하나의 서버 상태 기계로 연결했습니다. 각 기능의 상세 구현을 반복하지 않고, 이 문서는 전체 lifecycle과 책임 경계만 설명합니다.
 
-주요 원본 함수: `RequestCreateRoom()`, `RequestJoinRoom()`, `ApplyRoomStateFromNet()`, `DungeonRoom::OnReady()`, `DungeonRoom::OnSelectStage()`, `HandleServerLifeState()`, `FinalizeRoundResultLocked()`, `MarkNormalStageEndedForProgressionLocked()`, `OnTributeOfferRequest()`, `OnTributeReturnToLobbyRequest()`.
+주요 원본 함수: `RequestCreateRoom()`, `RequestJoinRoom()`, `UClientNetSubsystem::SendSelectStage()`, `UClientNetSubsystem::PopRoomState()`, `ApplyRoomStateFromNet()`, `DungeonRoom::OnReady()`, `DungeonRoom::OnSelectStage()`, `HandleServerLifeState()`, `FinalizeRoundResultLocked()`, `MarkNormalStageEndedForProgressionLocked()`, `OnTributeOfferRequest()`, `OnTributeReturnToLobbyRequest()`.
